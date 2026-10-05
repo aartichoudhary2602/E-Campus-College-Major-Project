@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Notice Board | eCampus International School</title>
+    <meta name="description"
+        content="View the latest notices, circulars, and updates from eCampus International School.">
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml"
+        href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎓</text></svg>">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Outfit:wght@500;700;800&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="assets/css/style.css">
+    <link rel="stylesheet" href="assets/css/animations.css">
+
+    <style>
+        /* Specific Notice Page Styles */
+        .notices-grid {
+            display: grid;
+            gap: 2rem;
+            grid-template-columns: 1fr;
+        }
+
+        @media (min-width: 768px) {
+            .notices-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (min-width: 1024px) {
+            .notices-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+
+        .notice-card {
+            background: var(--bg-color-surface);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-card);
+            padding: 2rem;
+            display: flex;
+            flex-direction: column;
+            border: 1px solid var(--border-light);
+            transition: transform var(--transition-fast), box-shadow var(--transition-fast);
+            position: relative;
+            overflow: hidden;
+        }
+
+        @media (hover: hover) {
+            .notice-card:hover {
+                transform: translateY(-5px);
+                box-shadow: var(--shadow-lg);
+            }
+        }
+
+        /* Top colored accent line */
+        .notice-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+        }
+
+        .category-exam::before {
+            background: var(--danger, #ef4444);
+        }
+
+        .category-event::before {
+            background: var(--info, #0284c7);
+        }
+
+        .category-general::before {
+            background: var(--primary);
+        }
+
+        .notice-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 1rem;
+        }
+
+        .notice-badge {
+            padding: 0.35rem 0.85rem;
+            border-radius: 999px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .badge-exam {
+            background: #fee2e2;
+            color: #ef4444;
+        }
+
+        .badge-event {
+            background: #e0f2fe;
+            color: #0284c7;
+        }
+
+        .badge-general {
+            background: #e0e7ff;
+            color: #4338ca;
+        }
+
+        .notice-date {
+            color: var(--text-muted);
+            font-size: 0.85rem;
+            font-weight: 500;
+        }
+
+        .notice-title {
+            font-size: 1.25rem;
+            color: var(--text-main);
+            margin-bottom: 1rem;
+            line-height: 1.4;
+        }
+
+        .notice-message {
+            color: var(--text-muted);
+            line-height: 1.6;
+            flex-grow: 1;
+        }
+
+        .stagger-enter {
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 0.6s cubic-bezier(0.4, 0, 0.2, 1), transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .stagger-enter.fade-in-up-smooth {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Classic Site Header -->
+    <link rel="stylesheet" href="assets/css/classic-header.css">
+
+    <header class="classic-site-header" id="classic-header">
+        <div class="classic-header-container">
+            <!-- Logo -->
+            <a href="index.html" class="ch-logo">
+                <div class="ch-logo-square">eC</div>
+                <div class="ch-logo-text">eCampus</div>
+            </a>
+
+            <!-- Desktop Navigation -->
+            <nav class="ch-nav">
+                <ul class="ch-nav-list" id="ch-nav-dynamic">
+                    <!-- Javascript maps links based on Guest/Student/Teacher here -->
+                    <li class="ch-nav-item"><a href="index.html" class="ch-nav-link active">Home</a></li>
+                    <li class="ch-nav-item"><a href="about.html" class="ch-nav-link">About</a></li>
+                    <li class="ch-nav-item"><a href="academics.html" class="ch-nav-link">Academics</a></li>
+                    <li class="ch-nav-item"><a href="admissions.html" class="ch-nav-link">Admissions</a></li>
+                </ul>
+            </nav>
+
+            <!-- Right Side Blocks -->
+            <div class="ch-right">
+
+                <!-- Guest View (Not Logged In) -->
+                <div id="ch-guest-view" style="display: none;">
+                    <a href="login.html" class="ch-btn-login">Login</a>
+                    <a href="admissions.html" class="ch-btn-register">Apply Now</a>
+                </div>
+
+                <!-- User View (Logged In) -->
+                <div id="ch-user-view" style="display: flex;">
+
+                    <!-- Chat Notification Badge -->
+                    <a href="#" class="ch-notif" aria-label="Chats">
+                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <path
+                                d="M21 11.5a8.38 8.38 0 01-.9 3.8 8.5 8.5 0 01-7.6 4.7 8.38 8.38 0 01-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 01-.9-3.8 8.5 8.5 0 014.7-7.6 8.38 8.38 0 013.8-.9h.5a8.48 8.48 0 018 8v.5z" />
+                        </svg>
+                        <span class="ch-badge" id="ch-chat-badge" style="display:none;">0</span>
+                    </a>
+
+                    <!-- Alert Notification Badge -->
+                    <a href="#" class="ch-notif" aria-label="Alerts">
+                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 01-3.46 0" />
+                        </svg>
+                        <span class="ch-badge" id="ch-notif-badge" style="display:none;">0</span>
+                    </a>
+
+                    <!-- Profile Dropdown -->
+                    <div class="ch-profile" id="ch-profile-btn">
+                        <img src="https://ui-avatars.com/api/?name=User&background=0F3A62&color=fff" alt="User Profile"
+                            class="ch-avatar" id="ch-avatar">
+                        <div class="ch-user-info" style="display: flex;">
+                            <span class="ch-user-name" id="ch-user-name">Loading...</span>
+                            <span class="ch-user-role" id="ch-user-role">Guest</span>
+                        </div>
+
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--text-muted)"
+                            stroke-width="2">
+                            <path d="M6 9l6 6 6-6" />
+                        </svg>
+
+                        <!-- Dropdown List -->
+                        <div class="ch-dropdown-menu" id="ch-profile-menu">
+                            <ul class="ch-dropdown-list">
+                                <li><a href="#">My Profile</a></li>
+                                <li><a href="#">Account Settings</a></li>
+                                <li><a href="/logout" style="color: #D32F2F; font-weight: 600;">Logout</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Mobile Hamburger -->
+                <button class="ch-hamburger">
+                    <span></span><span></span><span></span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <script src="assets/js/classic-header.js"></script>
+
+    <div
+        style="background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary) 100%); padding: 8rem 0 4rem; color: white; text-align: center; position: relative; overflow: hidden;">
+        <div
+            style="position: absolute; inset: 0; opacity: 0.1; background-image: radial-gradient(#fff 1px, transparent 1px); background-size: 30px 30px;">
+        </div>
+        <div class="container reveal reveal-scale">
+            <h1
+                style="font-size: clamp(2.5rem, 5vw, 4rem); color: white; margin-bottom: 1rem; font-family: var(--font-heading); font-weight: 800;">
+                Notice Board</h1>
+            <p style="font-size: 1.15rem; color: rgba(255,255,255,0.9); max-width: 600px; margin: 0 auto;">Stay updated
+                with our
+                latest circulars, events, and important announcements.</p>
+        </div>
+    </div>
+
+    <section class="section">
+        <div class="container">
+
+            <div class="reveal reveal-up"
+                style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 3rem; flex-wrap: wrap; gap: 1rem;">
+                <h2 style="font-size: 2rem; color: var(--text-main); font-family: var(--font-heading);">All Circulars
+                </h2>
+                <!-- Filter Dropdown Simulation -->
+                <select class="form-control"
+                    style="width: auto; padding: 0.5rem 2.5rem 0.5rem 1rem; cursor: pointer; border-radius: 9999px;">
+                    <option value="all">Category: All</option>
+                    <option value="exam">Examination</option>
+                    <option value="event">Event</option>
+                    <option value="general">General</option>
+                </select>
+            </div>
+
+            <!-- New Modern Grid Layout -->
+            <div class="notices-grid">
+
+                <!-- Card 1 -->
+                <div class="notice-card category-exam stagger-enter" style="transition-delay: 100ms;">
+                    <div class="notice-header">
+                        <span class="notice-badge badge-exam">Examination</span>
+                        <span class="notice-date">Oct 15, 2026</span>
+                    </div>
+                    <h3 class="notice-title">Terminal Exam Schedule for Grades 6-10</h3>
+                    <p class="notice-message">The terminal examination schedule for the upcoming semester has been
+                        finalized. Please review the detailed timetable attached to this circular. All students must
+                        ensure they arrive 15 minutes prior to the start time.</p>
+                </div>
+
+                <!-- Card 2 -->
+                <div class="notice-card category-event stagger-enter" style="transition-delay: 200ms;">
+                    <div class="notice-header">
+                        <span class="notice-badge badge-event">Event</span>
+                        <span class="notice-date">Oct 10, 2026</span>
+                    </div>
+                    <h3 class="notice-title">Annual Sports Meet 2026 Registrations</h3>
+                    <p class="notice-message">Registrations are now open for the Annual Sports Meet. Students interested
+                        in track, field, and indoor sports must submit their forms to the physical education department
+                        by Friday.</p>
+                </div>
+
+                <!-- Card 3 -->
+                <div class="notice-card category-general stagger-enter" style="transition-delay: 300ms;">
+                    <div class="notice-header">
+                        <span class="notice-badge badge-general">General</span>
+                        <span class="notice-date">Oct 02, 2026</span>
+                    </div>
+                    <h3 class="notice-title">Holiday Notice: National Day</h3>
+                    <p class="notice-message">The school will remain closed on Monday, October 12th in observance of
+                        National Day. Regular classes will resume on Tuesday as per the standard schedule.</p>
+                </div>
+
+                <!-- Card 4 -->
+                <div class="notice-card category-general stagger-enter" style="transition-delay: 400ms;">
+                    <div class="notice-header">
+                        <span class="notice-badge badge-general">General</span>
+                        <span class="notice-date">Sep 28, 2026</span>
+                    </div>
+                    <h3 class="notice-title">Winter Uniform Policy Update</h3>
+                    <p class="notice-message">Starting November 1st, all students are required to switch to the official
+                        winter uniform. Blazers and mandatory ties are available at the campus store.</p>
+                </div>
+
+                <!-- Card 5 -->
+                <div class="notice-card category-event stagger-enter" style="transition-delay: 500ms;">
+                    <div class="notice-header">
+                        <span class="notice-badge badge-event">Event</span>
+                        <span class="notice-date">Sep 20, 2026</span>
+                    </div>
+                    <h3 class="notice-title">Science Fair Exhibition</h3>
+                    <p class="notice-message">Parents and guardians are cordially invited to the Annual Science Fair
+                        taking place in the main auditorium. Come witness the innovative projects built by our senior
+                        students.</p>
+                </div>
+
+                <!-- Card 6 -->
+                <div class="notice-card category-exam stagger-enter" style="transition-delay: 600ms;">
+                    <div class="notice-header">
+                        <span class="notice-badge badge-exam">Examination</span>
+                        <span class="notice-date">Sep 15, 2026</span>
+                    </div>
+                    <h3 class="notice-title">Mock Tests for Senior Year</h3>
+                    <p class="notice-message">Mandatory mock examinations for Grade 12 students will commence next week
+                        to prepare for board evaluations. Attendance is strictly compulsory.</p>
+                </div>
+
+            </div>
+
+            <!-- Pagination Mock -->
+            <div style="display: flex; justify-content: center; gap: 0.5rem; margin-top: 4rem;">
+                <button class="btn btn-outline" style="padding: 0.5rem 1rem;" disabled>Prev</button>
+                <button class="btn btn-primary"
+                    style="padding: 0.5rem 1rem; width:40px; justify-content:center;">1</button>
+                <button class="btn btn-outline"
+                    style="padding: 0.5rem 1rem; width:40px; justify-content:center;">2</button>
+                <button class="btn btn-outline" style="padding: 0.5rem 1rem;">Next</button>
+            </div>
+
+        </div>
+    </section>
+
+    <!-- Global Footer -->
+    <footer class="site-footer">
+        <div class="container">
+            <div class="footer-grid">
+                <div>
+                    <div class="logo-link" style="margin-bottom: 1.5rem;">
+                        <div class="logo-icon" style="background: #fff; color: var(--primary);">eC
+                        </div>
+                        <div class="logo-text" style="color: #fff;">eCampus</div>
+                    </div>
+                    <p class="footer-text" style="margin-bottom: 1.5rem;">Empowering Minds, Shaping Futures. An
+                        institution dedicated to holistic and modern education.</p>
+                    <div class="social-icons">
+                        <a href="#" class="social-icon" aria-label="Facebook">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2">
+                                <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z" />
+                            </svg>
+                        </a>
+                        <a href="#" class="social-icon" aria-label="Twitter">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2">
+                                <path
+                                    d="M23 3a10.9 10.9 0 0 1-3.14 1.53 4.48 4.48 0 0 0-7.86 3v1A10.66 10.66 0 0 1 3 4s-4 9 5 13a11.64 11.64 0 0 1-7 2c9 5 20 0 20-11.5a4.5 4.5 0 0 0-.08-.83A7.72 7.72 0 0 0 23 3z" />
+                            </svg>
+                        </a>
+                        <a href="#" class="social-icon" aria-label="Instagram">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2">
+                                <rect x="2" y="2" width="20" height="20" rx="5" ry="5" />
+                                <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z" />
+                                <line x1="17.5" y1="6.5" x2="17.51" y2="6.5" />
+                            </svg>
+                        </a>
+                    </div>
+                </div>
+
+                <div>
+                    <h4 class="footer-title">Quick Links</h4>
+                    <div class="footer-links">
+                        <a href="about.html" class="footer-link">About Us</a>
+                        <a href="academics.html" class="footer-link">Academics</a>
+                        <a href="admissions.html" class="footer-link">Admissions</a>
+                        <a href="results.html" class="footer-link">Results & Achievements</a>
+                        <a href="gallery.html" class="footer-link">Gallery</a>
+                    </div>
+                </div>
+
+                <div>
+                    <h4 class="footer-title">Resources</h4>
+                    <div class="footer-links">
+                        <a href="notices.html" class="footer-link">Notice Board</a>
+                        <a href="calendar.html" class="footer-link">School Calendar</a>
+                        <a href="careers.html" class="footer-link">Careers</a>
+                        <a href="faq.html" class="footer-link">FAQ</a>
+                        <a href="login.html" class="footer-link">Student Login</a>
+                        <a href="admin.html" class="footer-link">Admin Portal</a>
+                    </div>
+                </div>
+
+                <div>
+                    <h4 class="footer-title">Contact Us</h4>
+                    <div class="footer-links">
+                        <div
+                            style="display: flex; gap: 0.75rem; color: #cbd5e1; margin-bottom: 0.5rem; text-align: left;">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--accent)"
+                                stroke-width="2" style="flex-shrink: 0;">
+                                <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
+                                <circle cx="12" cy="10" r="3" />
+                            </svg>
+                            <span>Sector 62, Knowledge Park III,<br>Noida, Uttar Pradesh 201301, India</span>
+                        </div>
+                        <div
+                            style="display: flex; gap: 0.75rem; color: #cbd5e1; margin-bottom: 0.5rem; text-align: left;">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--accent)"
+                                stroke-width="2">
+                                <path
+                                    d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z" />
+                            </svg>
+                            <span>9632587410</span>
+                        </div>
+                        <div style="display: flex; gap: 0.75rem; color: #cbd5e1; text-align: left;">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--accent)"
+                                stroke-width="2">
+                                <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
+                                <polyline points="22,6 12,13 2,6" />
+                            </svg>
+                            <span>admissions@ecampus.edu</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="footer-bottom">
+                <p>&copy; 2026 eCampus International School. All Rights Reserved. | <a href="privacy.html"
+                        style="color: #cbd5e1; text-decoration: none;">Privacy Policy</a> | <a href="terms.html"
+                        style="color: #cbd5e1; text-decoration: none;">Terms &amp; Conditions</a></p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Global Back to Top & Scripts -->
+    <button id="back-to-top" aria-label="Back to top">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M18 15l-6-6-6 6" />
+        </svg>
+    </button>
+
+    <script src="assets/js/main.js"></script>
+    <script src="assets/js/animations.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const staggeredElements = document.querySelectorAll('.stagger-enter');
+            staggeredElements.forEach(el => {
+                setTimeout(() => {
+                    el.classList.add('fade-in-up-smooth');
+                }, 50);
+            });
+        });
+    </script>
+</body>
+
+</html>
